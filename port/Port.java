@@ -1,35 +1,38 @@
 package port;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public final class Port {
-    private static Port port;
-    private int containers;
+    private static Port instance;
+    private static AtomicBoolean isCreatedPort = new AtomicBoolean(false);
 
-    public Port(int containers) {
-        if(containers > 0) {
-            this.containers = containers;
+    private LogisticDepartment logisticDepartment;
+    private int currentContainersAmount;
+
+    private Port() {
+        currentContainersAmount = 9;
+        logisticDepartment = new LogisticDepartment();
+    }
+
+    public static Port getInstance() {
+        if(!isCreatedPort.get()) {
+            if (instance == null) {
+                instance = new Port();
+                isCreatedPort.set(true);
+            }
         }
-        else {
-            System.out.println("Error! Number of containers has to be more than 0 in tne port!");
-        }
+        return instance;
     }
 
-    public static Port getPort(int containers) {
-        if (port == null) {
-            port = new Port(containers);
-        }
-        return port;
+    public int getCurrentContainersAmount() {
+        return currentContainersAmount;
     }
 
-    public int getContainers() {
-        return containers;
+    public void setCurrentContainersAmount(int currentContainersAmount) {
+        this.currentContainersAmount = currentContainersAmount;
     }
 
-    public void setContainers(int containers) {
-        this.containers = containers;
-    }
-
-    @Override
-    public String toString() {
-        return "Port: " + containers + " docks";
+    public LogisticDepartment getLogisticDepartment() {
+        return logisticDepartment;
     }
 }

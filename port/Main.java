@@ -1,21 +1,13 @@
 package port;
 
-import java.util.Random;
-
 public class Main {
 
     public static void main(String[] args) {
-       Port port = Port.getPort(9);
-       Dock dock = new Dock();
-       //new Ship(new Random().nextInt(10) + 1, "Ship#1", dock, port, Task.LOAD).start();
-       //new Ship(new Random().nextInt(10) + 1, "Ship#2", dock, port, Task.UNLOAD).start();
-       //new Ship(new Random().nextInt(10) + 1, "Ship#3", dock, port, Task.LOAD_UNLOAD).start();
-       //new Ship(new Random().nextInt(10) + 1, "Ship#4", dock, port, Task.LOAD).start();
-       //new Ship(new Random().nextInt(10) + 1, "Ship#5", dock, port, Task.UNLOAD).start();
+        Port port = Port.getInstance();
 
-        new Ship(10,"Ship#1", dock, port, Task.LOAD).start();
-        new Ship(10, "Ship#2", dock, port, Task.UNLOAD).start();
-        new Ship(10, "Ship#3", dock, port, Task.LOAD).start();
-        new Ship(10, "Ship#4", dock, port, Task.UNLOAD).start();
+        new Ship(1, Mission.LOAD,  10).start();
+        new Ship(2, Mission.UNLOAD,  10).start();
+        new Ship(3, Mission.LOAD,  10).start();
+        new Ship(4, Mission.UNLOAD,  10).start();
     }
 }

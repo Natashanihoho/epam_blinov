@@ -1,6 +1,6 @@
 package port;
 
-public enum Task {
+public enum Mission {
     LOAD,
     UNLOAD,
     LOAD_UNLOAD
