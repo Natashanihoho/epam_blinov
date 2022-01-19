@@ -1,0 +1,3 @@
+Ships are coming to the port to load/unload their containers.
+There's a single port (Singleton)
+Only one ship can be served on the port at the same time.
