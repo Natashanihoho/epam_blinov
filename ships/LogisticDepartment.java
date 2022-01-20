@@ -1,47 +1,42 @@
 package ships;
 
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LogisticDepartment {
     private final float loadFactor = 0.75F;
-    private Port port;
-    private ReentrantLock locker;
-    private Condition condition;
+    private ReentrantLock locker = new ReentrantLock();
+    private Condition condition = locker.newCondition();
+    private Queue<Pier> freePeers;
 
-    public LogisticDepartment(Port port) {
-        this.port = port;
-        this.locker = new ReentrantLock();
-        this.condition = locker.newCondition();
+    public LogisticDepartment(Queue<Pier> freePeers) {
+        this.freePeers = freePeers;
     }
 
-    public void getContainers(int containersAmount) {
+    public void baseOnPear(Ship ship) {
         locker.lock();
+        Port port = Port.getInstance();
         try {
-            while (containersAmount < port.getCurrentContainersAmount()) {
+            while (freePeers.isEmpty()) {
+                System.out.println("Ship#" + ship.getShipId() + " is waiting for a free pier...");
                 condition.await();
             }
-            port.setCurrentContainersAmount(port.getCurrentContainersAmount() - containersAmount);
-            condition.signal();
+            condition.signalAll();
+            Pier pier = freePeers.element();
+            System.out.println("Ship#" + ship.getShipId() + " is based in the pier#" + pier.getPierId());
+            freePeers.remove();
+            TimeUnit.SECONDS.sleep(new Random().nextInt(5) + 1);
+            System.out.println("Ship#" + ship.getShipId() + " is released the pier#" + pier.getPierId());
+            freePeers.add(pier);
+
         } catch (InterruptedException e) {
             e.printStackTrace();
         } finally {
             locker.unlock();
         }
-    }
 
-    public void putContainers(int containersAmount) {
-        locker.lock();
-        try {
-            while (containersAmount + port.getCurrentContainersAmount() > port.getPortMaxCapacity()) {
-                condition.await();
-            }
-            port.setCurrentContainersAmount(port.getCurrentContainersAmount() + containersAmount);
-            condition.signal();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            locker.unlock();
-        }
     }
 }

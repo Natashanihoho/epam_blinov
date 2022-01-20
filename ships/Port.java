@@ -1,54 +1,79 @@
 package ships;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Port {
     private static Port instance;
-    private final int portMaxCapacity;
-    private final int piersAmount;
-    private int currentContainersAmount;
-    List<Pier> piers;
+    private static AtomicBoolean isCreated = new AtomicBoolean(false);
+    private static final ReentrantLock locker = new ReentrantLock();
 
-    private Port(int portMaxCapacity, int piersAmount, int currentContainersAmount) {
-        this.portMaxCapacity = portMaxCapacity;
-        this.piersAmount = piersAmount;
-        this.currentContainersAmount = currentContainersAmount;
-        this.piers = createPiersList();
+    private final LogisticDepartment logisticDepartment;
+    private final int PORT_MAX_CAPACITY = 20;
+    private final int PIERS_AMOUNT = 3;
+
+    private int currentContainersAmount = 9;
+    private Queue<Pier> freePiers;
+
+    private Port() {
+
+        this.freePiers = createPiersQueue();
+        this.logisticDepartment = new LogisticDepartment(freePiers);
     }
 
-    public synchronized static Port getInstance(int portMaxCapacity, int piersAmount, int currentContainersAmount) {
-        if(instance == null) {
-            instance = new Port(portMaxCapacity, piersAmount, currentContainersAmount);
+    public static Port getInstance() {
+
+        if(!isCreated.get()) {
+            locker.lock();
+            try {
+                if(instance == null) {
+                    instance = new Port();
+                    isCreated.set(true);
+                }
+            } finally {
+                locker.unlock();
+            }
         }
         return instance;
     }
 
-    public List<Pier> createPiersList() {
-        piers = new ArrayList<>();
-        piers.add(new Pier(1, Mission.LOAD_TO_SHIP));
-        piers.add(new Pier(2, Mission.UNLOAD_FROM_SHIP));
-        piers.add(new Pier(3, Mission.LOAD_TO_SHIP));
-        /*for (int i = 0; i < piersAmount; i++) {
-            piers.add(new Pier(i+1));
-        }*/
-        return Collections.unmodifiableList(piers);
+    public Queue<Pier> createPiersQueue() {
+
+        freePiers = new ArrayDeque<>();
+        for (int i = 0; i < PIERS_AMOUNT; i++) {
+            freePiers.add(new Pier(i+1));
+        }
+
+        return freePiers;
     }
 
-    public List<Pier> getPiers() {
-        return piers;
+    public Queue<Pier> getPiers() {
+        return freePiers;
     }
 
     public int getCurrentContainersAmount() {
+
         return currentContainersAmount;
     }
 
     public void setCurrentContainersAmount(int currentContainersAmount) {
+
         this.currentContainersAmount = currentContainersAmount;
     }
 
-    public int getPortMaxCapacity() {
-        return portMaxCapacity;
+    public int getPORT_MAX_CAPACITY() {
+
+        return PORT_MAX_CAPACITY;
+    }
+
+    public int getPIERS_AMOUNT() {
+
+        return PIERS_AMOUNT;
+    }
+
+    public LogisticDepartment getLogisticDepartment() {
+
+        return logisticDepartment;
     }
 }

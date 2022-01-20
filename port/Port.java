@@ -1,12 +1,15 @@
 package port;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 public final class Port {
+    private static final ReentrantLock lock = new ReentrantLock(true);
     private static Port instance;
     private static AtomicBoolean isCreatedPort = new AtomicBoolean(false);
 
-    private LogisticDepartment logisticDepartment;
+    private final LogisticDepartment logisticDepartment;
+
     private int currentContainersAmount;
 
     private Port() {
@@ -16,9 +19,14 @@ public final class Port {
 
     public static Port getInstance() {
         if(!isCreatedPort.get()) {
-            if (instance == null) {
-                instance = new Port();
-                isCreatedPort.set(true);
+            lock.lock();
+            try {
+                if (instance == null) {
+                    instance = new Port();
+                    isCreatedPort.set(true);
+                }
+            } finally {
+                lock.unlock();
             }
         }
         return instance;
