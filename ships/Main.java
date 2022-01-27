@@ -1,19 +1,41 @@
 package ships;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Timer;
 
 public class Main {
-    public static void main(String[] args) {
-        Port port = Port.getInstance();
+    private static ArrayList<Ship> ships = new ArrayList<>();
 
-        /*ExecutorService executorService = Executors.newFixedThreadPool(port.getPIERS_AMOUNT());
-        executorService.execute(new Ship(1, Mission.LOAD_TO_SHIP, 5));
-        executorService.execute(new Ship(2, Mission.LOAD_TO_SHIP, 5));
-        executorService.execute(new Ship(3, Mission.LOAD_TO_SHIP, 5));
-        executorService.execute(new Ship(4, Mission.LOAD_TO_SHIP, 5));*/
-        for (int i = 0; i < 5; i++) {
-            new Ship(i+1, Mission.LOAD_TO_SHIP, 5).start();
+    public static void main(String[] args) {
+
+        ships.add(new Ship(1, getRandomAction(), getRandomNumberOfContainers()));
+        ships.add(new Ship(2, getRandomAction(), getRandomNumberOfContainers()));
+        ships.add(new Ship(3, getRandomAction(), getRandomNumberOfContainers()));
+        ships.add(new Ship(4, getRandomAction(), getRandomNumberOfContainers()));
+        for (Ship s:
+             ships) {
+            System.out.println(s);
         }
+
+        for (Ship ship:
+             ships) {
+            ship.start();
+        }
+
+        Timer timer = new Timer();
+        Checker checker = new Checker(timer, Port.getInstance().getCurrentContainersAmount(), ships);
+        timer.schedule(checker, 1000, 1000);
+
+    }
+
+    private static Action getRandomAction() {
+        int pick = new Random().nextInt(Action.values().length);
+        return Action.values()[pick];
+    }
+
+    private static int getRandomNumberOfContainers() {
+        int pick = new Random().nextInt(20) + 1;
+        return pick;
     }
 }

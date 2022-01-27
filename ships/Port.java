@@ -2,24 +2,37 @@ package ships;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Port {
-    private static Port instance;
-    private static AtomicBoolean isCreated = new AtomicBoolean(false);
+
+    private static final int PORT_MAX_CAPACITY = 20;
+    private static final int PIERS_AMOUNT = 3;
+
     private static final ReentrantLock locker = new ReentrantLock();
 
-    private final LogisticDepartment logisticDepartment;
-    private final int PORT_MAX_CAPACITY = 20;
-    private final int PIERS_AMOUNT = 3;
+    private static Port instance;
+    private static AtomicBoolean isCreated = new AtomicBoolean(false);
 
-    private int currentContainersAmount = 9;
-    private Queue<Pier> freePiers;
+    private static AtomicInteger currentContainersAmount = new AtomicInteger(9);
+    private static LogisticDepartment logisticDepartment = new LogisticDepartment(currentContainersAmount);
+    private static List<Pier> pierList;
 
     private Port() {
+        this.pierList = createPiersList();
+    }
 
-        this.freePiers = createPiersQueue();
-        this.logisticDepartment = new LogisticDepartment(freePiers);
+    private List<Pier> createPiersList() {
+        pierList = new ArrayList<>();
+        for (int i = 0; i < PIERS_AMOUNT; i++) {
+            pierList.add(new Pier(i+1));
+        }
+        return pierList;
+    }
+
+    public List<Pier> getPierList() {
+        return pierList;
     }
 
     public static Port getInstance() {
@@ -38,38 +51,13 @@ public class Port {
         return instance;
     }
 
-    public Queue<Pier> createPiersQueue() {
-
-        freePiers = new ArrayDeque<>();
-        for (int i = 0; i < PIERS_AMOUNT; i++) {
-            freePiers.add(new Pier(i+1));
-        }
-
-        return freePiers;
-    }
-
-    public Queue<Pier> getPiers() {
-        return freePiers;
-    }
-
-    public int getCurrentContainersAmount() {
-
+    public AtomicInteger getCurrentContainersAmount() {
         return currentContainersAmount;
-    }
-
-    public void setCurrentContainersAmount(int currentContainersAmount) {
-
-        this.currentContainersAmount = currentContainersAmount;
     }
 
     public int getPORT_MAX_CAPACITY() {
 
         return PORT_MAX_CAPACITY;
-    }
-
-    public int getPIERS_AMOUNT() {
-
-        return PIERS_AMOUNT;
     }
 
     public LogisticDepartment getLogisticDepartment() {

@@ -1,24 +1,23 @@
 package ships;
 
 public class Pier {
-    private int pierId;
-    private boolean isFree;
-    private boolean isReady;
+
+    private final int pierId;
+    private boolean isBusy = false;
 
     public Pier(int pierId) {
         this.pierId = pierId;
-        this.isFree = true;
-    }
-
-    public boolean isFree() {
-        return isFree;
     }
 
     public int getPierId() {
         return pierId;
     }
 
-    public void setFree(boolean free) {
-        isFree = free;
+    public void setBusy(boolean busy) {
+        isBusy = busy;
+    }
+
+    public boolean isBusy() {
+        return isBusy;
     }
 }
